@@ -1,7 +1,7 @@
 <?php
 
 use yii\helpers\Html;
-use yii\widgets\DetailView;
+
 
 /* @var $this yii\web\View */
 /* @var $model app\Models\Company */
@@ -11,12 +11,18 @@ $this->params['breadcrumbs'][] = ['label' => 'Companies', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 \yii\web\YiiAsset::register($this);
 ?>
+<?php
+$this->registerJsFile(
+    'js/modalCompany.js',
+    ['depends'=>'app\assets\AppAsset']
+);
+?>
 <div class="company-view">
 
     <h1><?= Html::encode($this->title) ?></h1>
 
+
     <p>
-        <?= Html::a('Update', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
         <?= Html::a('Delete', ['delete', 'id' => $model->id], [
             'class' => 'btn btn-danger',
             'data' => [
@@ -26,16 +32,14 @@ $this->params['breadcrumbs'][] = $this->title;
         ]) ?>
     </p>
 
+    <div id="companyView">
+        <?= $this->render('_view', ['model' => $model]) ?>
+    </div>
 
-    <?= DetailView::widget([
-        'model' => $model,
-        'attributes' => [
-            'id',
-            'name',
-            'director',
-            'INN',
-            'address',
-        ],
-    ]) ?>
+    <?php
+        if (Yii::$app->user->can('updateCompany')){
+           echo $this->render('_modal', ['model' => $model]);
+        }
+    ?>
 
 </div>

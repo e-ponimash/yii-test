@@ -17,19 +17,21 @@ $this->params['breadcrumbs'][] = $this->title;
         <?= Html::a('Create Company', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
-    <?= GridView::widget([
+    <?=
+        GridView::widget([
         'dataProvider' => $dataProvider,
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
-
             'id',
             'name',
             'director',
             'INN',
             'address',
+            [
+                    'class' => 'yii\grid\ActionColumn',
+                'template' => '{view} {delete}',],
 
-            ['class' => 'yii\grid\ActionColumn'],
-        ],
-    ]); ?>
+            ],
+        ]); ?>
 
 </div>

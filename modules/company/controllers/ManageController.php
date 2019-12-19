@@ -103,11 +103,13 @@ class ManageController extends Controller
     {
         $model = $this->findModel($id);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+        if ($model->load(Yii::$app->request->post())) {
+            if ($model->save()) {
+                return $this->renderPartial('_view', ['model' => $model]);
+            }
+            Yii::$app->response->statusCode = 400;
         }
-
-        return $this->render('update', [
+        return $this->renderPartial('update', [
             'model' => $model,
         ]);
     }
