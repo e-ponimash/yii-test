@@ -40,18 +40,4 @@ class m191218_175053_create_users extends Migration
         return false;
     }
 
-    /*
-    // Use up()/down() to run migration code without a transaction.
-    public function up()
-    {
-
-    }
-
-    public function down()
-    {
-        echo "m191218_175053_create_users cannot be reverted.\n";
-
-        return false;
-    }
-    */
 }

@@ -29,28 +29,34 @@ AppAsset::register($this);
 <div class="wrap">
     <?php
     NavBar::begin([
-        'brandLabel' => Yii::$app->name,
-        'brandUrl' => Yii::$app->homeUrl,
         'options' => [
-            'class' => 'navbar-inverse navbar-fixed-top',
+            'class' => 'navbar-fixed-top',
         ],
     ]);
+    $itemsMenu = array();
+    if(Yii::$app->user->can('viewCompanyList')){
+        array_push($itemsMenu, ['label' => 'Компании', 'url' => ['/company/manage']]);
+    }
+    if(Yii::$app->user->can('viewUserList')){
+        array_push($itemsMenu, ['label' => 'Пользователи', 'url' => ['/user/manage']]);
+    }
+    if (Yii::$app->user->isGuest){
+        array_push($itemsMenu, ['label' => 'Вход', 'url' => ['/site/login']]);
+    } else {
+        $button = '<li>'
+            . Html::beginForm(['/site/logout'], 'post')
+            . Html::submitButton(
+                'Logout (' . Yii::$app->user->identity->username . ')',
+                ['class' => 'btn btn-link logout']
+            )
+            . Html::endForm()
+            . '</li>';
+        array_push($itemsMenu, $button);
+    }
+
     echo Nav::widget([
         'options' => ['class' => 'navbar-nav navbar-right'],
-        'items' => [
-            Yii::$app->user->isGuest ? (
-                ['label' => 'Login', 'url' => ['/site/login']]
-            ) : (
-                '<li>'
-                . Html::beginForm(['/site/logout'], 'post')
-                . Html::submitButton(
-                    'Logout (' . Yii::$app->user->identity->username . ')',
-                    ['class' => 'btn btn-link logout']
-                )
-                . Html::endForm()
-                . '</li>'
-            )
-        ],
+        'items' => $itemsMenu,
     ]);
     NavBar::end();
     ?>

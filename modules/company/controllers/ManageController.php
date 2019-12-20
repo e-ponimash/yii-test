@@ -82,12 +82,19 @@ class ManageController extends Controller
     public function actionCreate()
     {
         $model = new Company();
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+        if ($model->load(Yii::$app->request->post())){
+            if( $model->save()) {
+                $dataProvider = new ActiveDataProvider([
+                    'query' => Company::find(),
+                ]);
+                return $this->renderPartial('_list', [
+                    'dataProvider' => $dataProvider,
+                ]);
+            }
+            Yii::$app->response->statusCode = 400;
         }
 
-        return $this->render('create', [
+        return $this->renderPartial('create', [
             'model' => $model,
         ]);
     }
@@ -109,7 +116,7 @@ class ManageController extends Controller
             }
             Yii::$app->response->statusCode = 400;
         }
-        return $this->renderPartial('update', [
+        return $this->renderPartial('_form', [
             'model' => $model,
         ]);
     }
@@ -120,12 +127,19 @@ class ManageController extends Controller
      * @param integer $id
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
      */
     public function actionDelete($id)
     {
         $this->findModel($id)->delete();
 
-        return $this->redirect(['index']);
+        $dataProvider = new ActiveDataProvider([
+            'query' => Company::find(),
+        ]);
+        return $this->renderPartial('_list', [
+            'dataProvider' => $dataProvider,
+        ]);
     }
 
     /**

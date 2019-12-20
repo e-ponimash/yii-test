@@ -55,22 +55,7 @@ class m191218_181844_create_rbac extends Migration
     public function safeDown()
     {
         echo "m191218_181844_create_rbac cannot be reverted.\n";
-
         return false;
     }
 
-    /*
-    // Use up()/down() to run migration code without a transaction.
-    public function up()
-    {
-
-    }
-
-    public function down()
-    {
-        echo "m191218_181844_create_rbac cannot be reverted.\n";
-
-        return false;
-    }
-    */
 }

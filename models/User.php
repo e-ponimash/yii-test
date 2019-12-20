@@ -11,13 +11,29 @@ use yii\web\IdentityInterface;
 class User extends ActiveRecord implements IdentityInterface
 {
 
-    public $roles;
+    public $roles;// роли
 
+    /**
+     *  ставим обработчик на AFTER_UPDATE => saveRole
+     */
+    public function __construct($config=[])
+    {
+        $this->on(self::EVENT_AFTER_UPDATE, [$this, 'saveRole']);
+        return parent::__construct($config);
+    }
+
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return '{{%user}}';
     }
 
+    /**
+     * Определяем поведение с метками времени
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -42,7 +58,7 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * Finds user by username
+     * Возращает модель User по $username
      *
      * @param string $username
      * @return static|null
@@ -52,26 +68,35 @@ class User extends ActiveRecord implements IdentityInterface
         return static::findOne(['username' => $username]);
     }
 
-    /* Finds id
+    /**
+     * Возращает Id
      *
+     * @return Id
      */
     public function getId()
     {
         return $this->getPrimaryKey();
     }
 
+    /**
+     *
+     * @return mixed|string
+     */
     public function getAuthKey()
     {
         return $this->auth_key;
     }
 
+    /*
+     *  Валидация AuthKey
+     */
     public function validateAuthKey($authKey)
     {
         return $this->getAuthKey() === $authKey;
     }
 
     /**
-     * Validates password
+     * Валидация password
      *
      * @param string $password password to validate
      * @return bool if password provided is valid for current user
@@ -81,14 +106,17 @@ class User extends ActiveRecord implements IdentityInterface
         return Yii::$app->security->validatePassword($password, $this->password_hash);
     }
 
+    /**
+     * Устанавливает auth_key в модели
+     *
+     */
     public function generateAuthKey()
     {
         $this->auth_key = Yii::$app->security->generateRandomString();
     }
 
-
     /**
-     * Generates password hash from password and sets it to the model
+     * Устанавливает password_hash в модели
      *
      * @param string $password
      */
@@ -97,7 +125,9 @@ class User extends ActiveRecord implements IdentityInterface
         $this->password_hash = Yii::$app->security->generatePasswordHash($password);
     }
 
-
+    /**
+     *
+     */
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
@@ -109,13 +139,53 @@ class User extends ActiveRecord implements IdentityInterface
         return false;
     }
 
+    /**
+     * Возращает список ролей
+     *
+     * @return array
+     */
+    public function getRoleList(){
+        return [
+            'admin' => 'admin',
+            'guest' => 'guest'
+        ];
+    }
 
+    /**
+     * Проставляем метки
+     * @return array
+     */
+
+    public function attributeLabels()
+    {
+        return [
+            'username' => 'Пользователь',
+            'password' => 'Пароль',
+        ];
+    }
+
+    /**
+     * Определяем правила для полей
+     * @return array
+     */
     public function rules()
     {
         return [['roles', 'safe']];
     }
 
-    public function saveRoles(){
+    /**
+     *
+     */
+    public function afterFind()
+    {
+        $this->roles = $this->getRoles();
+    }
+
+    /**
+     * Проставляем  роли для пользователей
+     *
+     */
+    public function saveRole(){
         Yii::$app->authManager->revokeAll($this->getId());
         if (is_array($this->roles)){
             foreach ($this->roles as $roleName){
@@ -126,24 +196,12 @@ class User extends ActiveRecord implements IdentityInterface
         }
     }
 
-    public function afterFind()
-    {
-        $this->roles = $this->getRoles();
-    }
-
-    public function attributeLabels()
-    {
-        return [
-            'username' => 'Пользователь',
-            'password' => 'Пароль',
-        ];
-    }
-
-
+    /**
+     * @return array
+     */
     public function getRoles(){
         $roles = Yii::$app->authManager->getRolesByUser($this->getId());
         return ArrayHelper::getColumn($roles,'name',false);
-
     }
 }
 
